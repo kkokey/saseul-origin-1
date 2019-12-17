@@ -23,17 +23,7 @@ class ServiceLoader
 
     public function main(): void
     {
-        $env_load = Env::load();
-
-        if ($env_load === false) {
-            $msg = "Env file load failed. Run saseul_script for set up env file. ";
-
-            Debugger::info($msg);
-            Logger::debug($msg, true);
-        }
-
-//        Env::registerErrorHandler();
-        Env::apply();
+        $this->check();
         $service = $this->route($this->argv[1]);
 
         if ($service === '') {
@@ -43,6 +33,39 @@ class ServiceLoader
             Logger::debug($msg, true);
         } else {
             $this->execService($service);
+        }
+    }
+
+    public function check(): void
+    {
+        $env_load = Env::load();
+
+        if ($env_load === false) {
+            $msg = "Env file load failed. Run saseul_script for set up env file. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
+            exit();
+        }
+
+        Env::apply();
+
+        $check_mem = Env::checkMemcached();
+
+        if (!$check_mem) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
+        }
+
+        $check_mongo = Env::checkMongo();
+
+        if (!$check_mongo) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
         }
     }
 

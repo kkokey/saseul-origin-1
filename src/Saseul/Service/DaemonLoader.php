@@ -6,6 +6,7 @@ use Saseul\Core\Debugger;
 use Saseul\Common\Service;
 use Saseul\Constant\Directory;
 use Saseul\Constant\Signal;
+use Saseul\Core\Env;
 use Saseul\Core\Process;
 use Saseul\Core\Property;
 use Saseul\Data\Tracker;
@@ -30,8 +31,30 @@ class DaemonLoader extends Service
         Property::init();
 
         while (true) {
+            $this->check();
             $this->manage();
             $this->iterate(100000); # 0.1 seconds
+        }
+    }
+
+    function check(): void
+    {
+        $check_mem = Env::checkMemcached();
+
+        if (!$check_mem) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
+        }
+
+        $check_mongo = Env::checkMongo();
+
+        if (!$check_mongo) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
         }
     }
 

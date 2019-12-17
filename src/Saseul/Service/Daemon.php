@@ -34,11 +34,33 @@ class Daemon extends Service
 
         while (true)
         {
+            $this->check();
             IMLog::add(date('Y-m-d H:i:s').' Now Running ');
             $node = $this->node();
             $node->main();
             $this->iterate(10000);
             $this->reload();
+        }
+    }
+
+    function check(): void
+    {
+        $check_mem = Env::checkMemcached();
+
+        if (!$check_mem) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
+        }
+
+        $check_mongo = Env::checkMongo();
+
+        if (!$check_mongo) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
         }
     }
 

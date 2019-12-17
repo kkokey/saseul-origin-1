@@ -4,6 +4,8 @@ namespace Saseul\Core;
 
 use Saseul\Constant\Directory;
 use Saseul\Constant\Structure;
+use Saseul\System\Cache;
+use Saseul\System\Database;
 use Saseul\Util\Logger;
 use Saseul\Util\TypeChecker;
 
@@ -43,31 +45,14 @@ class Env
         return true;
     }
 
-    public static function checkDirectory(): void
+    public static function checkMemcached(): bool
     {
-        $check_directories = [];
-        $check_directories[] = Directory::BLOCKDATA;
-        $check_directories[] = Directory::CONTRACTDATA;
-        $check_directories[] = Directory::TEMP;
-        $check_directories[] = Directory::API_CHUNKS;
-        $check_directories[] = Directory::BROADCAST_CHUNKS;
-        $check_directories[] = Directory::TRANSACTIONS;
-        $check_directories[] = Directory::TX_ARCHIVE;
-        $check_directories[] = Directory::GENERATIONS;
-        $check_directories[] = Directory::CUSTOM_CONTRACT;
-        $check_directories[] = Directory::CUSTOM_REQUEST;
-        $check_directories[] = Directory::CUSTOM_STATUS;
+        return Cache::GetInstance()->isConnect();
+    }
 
-        foreach ($check_directories as $dir) {
-            if (!is_dir($dir) && !is_file($dir)) {
-                mkdir($dir);
-                chmod($dir, 0775);
-
-                if ($dir === Directory::API_CHUNKS) {
-                    chmod($dir, 0777);
-                }
-            }
-        }
+    public static function checkMongo(): bool
+    {
+        return Database::GetInstance()->IsConnect();
     }
 
     public static function apply(): void
@@ -96,6 +81,33 @@ class Env
         }
 
         self::checkDirectory();
+    }
+
+    public static function checkDirectory(): void
+    {
+        $check_directories = [];
+        $check_directories[] = Directory::BLOCKDATA;
+        $check_directories[] = Directory::CONTRACTDATA;
+        $check_directories[] = Directory::TEMP;
+        $check_directories[] = Directory::API_CHUNKS;
+        $check_directories[] = Directory::BROADCAST_CHUNKS;
+        $check_directories[] = Directory::TRANSACTIONS;
+        $check_directories[] = Directory::TX_ARCHIVE;
+        $check_directories[] = Directory::GENERATIONS;
+        $check_directories[] = Directory::CUSTOM_CONTRACT;
+        $check_directories[] = Directory::CUSTOM_REQUEST;
+        $check_directories[] = Directory::CUSTOM_STATUS;
+
+        foreach ($check_directories as $dir) {
+            if (!is_dir($dir) && !is_file($dir)) {
+                mkdir($dir);
+                chmod($dir, 0775);
+
+                if ($dir === Directory::API_CHUNKS) {
+                    chmod($dir, 0777);
+                }
+            }
+        }
     }
 
     public static function registerErrorHandler()

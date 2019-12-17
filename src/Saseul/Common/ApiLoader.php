@@ -33,8 +33,12 @@ class ApiLoader
     public function main(): void
     {
         $env_load = Env::load();
+        $check_mem = Env::checkMemcached();
+        $check_mongo = Env::checkMongo();
 
-        if ($env_load === false || !Signal::isAlive(Property::daemonSig())) {
+        if (!$env_load || !$check_mem || !$check_mongo ||
+            !Signal::isAlive(Property::daemonSig()))
+        {
             $uri = '/serviceunavailable';
         } else {
             $uri = $this->getUri();

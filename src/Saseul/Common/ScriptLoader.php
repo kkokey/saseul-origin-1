@@ -28,6 +28,19 @@ class ScriptLoader
 
     public function main(): void
     {
+        $this->check();
+
+        $script = $this->route($this->argv[1]);
+
+        if ($script === '') {
+            $this->showAllScripts();
+        } else {
+            $this->execScript($script);
+        }
+    }
+
+    public function check(): void
+    {
         $env_load = Env::load();
 
         if ($env_load === false) {
@@ -37,17 +50,27 @@ class ScriptLoader
             Logger::debug($msg);
 
             $this->execScript($this->setup_env_script);
-
-            return;
+            exit();
         }
 
         Env::apply();
-        $script = $this->route($this->argv[1]);
 
-        if ($script === '') {
-            $this->showAllScripts();
-        } else {
-            $this->execScript($script);
+        $check_mem = Env::checkMemcached();
+
+        if (!$check_mem) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
+        }
+
+        $check_mongo = Env::checkMongo();
+
+        if (!$check_mongo) {
+            $msg = "Memcached is not running. ";
+
+            Debugger::info($msg);
+            Logger::debug($msg, true);
         }
     }
 
