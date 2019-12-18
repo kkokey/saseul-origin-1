@@ -4,6 +4,8 @@ namespace Saseul\Constant;
 class MongoDbConfig
 {
     public const DB_SASEUL = 'saseul_core';
+    public const DB_CUSTOM = 'saseul_custom';
+    public const DB_TEST = 'saseul_test';
 
     public const COLLECTION_BLOCK = 'block';
     public const COLLECTION_TRANSACTION = 'transaction';

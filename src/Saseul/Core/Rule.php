@@ -46,13 +46,13 @@ class Rule
     {
         switch ($form) {
             case Form::CONTRACT:
-                return preg_match('/^C[0-9a-z]{12,80}$/', $cid);
+                return preg_match('/^C[0-9a-z]{1,12}$/', $cid);
                 break;
             case Form::REQUEST:
-                return preg_match('/^R[0-9a-z]{12,80}$/', $cid);
+                return preg_match('/^R[0-9a-z]{1,12}$/', $cid);
                 break;
             case Form::STATUS:
-                return preg_match('/^S[0-9a-z]{12,80}$/', $cid);
+                return preg_match('/^S[0-9a-z]{1,12}$/', $cid);
                 break;
             default:
                 return false;

@@ -41,11 +41,11 @@ class StatusManager
             $class = preg_replace('/\\'.DIRECTORY_SEPARATOR.'/', '\\', $status);
             $class = 'Custom\\Status\\'.$class;
 
-            if (file_exists($filename)) {
+            if (file_exists($filename) && !class_exists($class)) {
                 require_once($filename);
             }
 
-            if (class_exists($class)) {
+            if (class_exists($class) && !isset($this->statuses[$status])) {
                 $this->statuses[$status] = $class::GetInstance();
                 $this->statuses[$status]->_setup();
             }

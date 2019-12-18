@@ -4,6 +4,7 @@ namespace Saseul\Contract;
 
 use Saseul\Common\Contract;
 use Saseul\Constant\Decision;
+use Saseul\Constant\Title;
 use Saseul\Core\Key;
 use Saseul\Core\Rule;
 use Saseul\Status\Authority;
@@ -40,10 +41,7 @@ class ModifyCode extends Contract
 
     private $code;
     private $form;
-
     private $cid;
-    private $is_exists;
-    private $is_manager;
 
     public function _init(array $transaction, string $thash, string $public_key, string $signature): void
     {
@@ -55,11 +53,13 @@ class ModifyCode extends Contract
         $this->type = $this->transaction['type'] ?? '';
         $this->version = $this->transaction['version'] ?? '';
         $this->from = $this->transaction['from'] ?? '';
-        $this->timestamp = (int) $this->transaction['timestamp'] ?? 0;
+        $this->timestamp = $this->transaction['timestamp'] ?? 0;
 
         $this->code = $this->transaction['code'] ?? '';
         $this->form = $this->transaction['form'] ?? '';
         $this->cid = $this->transaction['cid'] ?? '';
+
+        $this->timestamp = (int) $this->timestamp;
     }
 
     public function _getValidity(): bool
@@ -77,26 +77,23 @@ class ModifyCode extends Contract
 
     public function _loadStatus(): void
     {
-        Authority::GetInstance()->load($this->from);
+        Authority::GetInstance()->loadAuthority($this->from, Title::NETWORK_MANAGER);
         Code::GetInstance()->load($this->cid);
-    }
-
-    public function _getStatus(): void
-    {
-        $this->is_manager = Authority::GetInstance()->get($this->from);
-
-        $code = Code::GetInstance()->get($this->cid);
-
-        if ($code !== null) {
-            $this->is_exists = true;
-        } else {
-            $this->is_exists = false;
-        }
     }
 
     public function _makeDecision(): string
     {
-        if ($this->is_exists === true && $this->is_manager === true) {
+        $is_manager = Authority::GetInstance()->getAuthority($this->from, Title::NETWORK_MANAGER);
+
+        $code = Code::GetInstance()->get($this->cid);
+
+        if ($code !== null) {
+            $is_exists = true;
+        } else {
+            $is_exists = false;
+        }
+
+        if ($is_exists === true && $is_manager === true) {
             return Decision::ACCEPT;
         }
 

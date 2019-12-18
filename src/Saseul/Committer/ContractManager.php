@@ -45,11 +45,11 @@ class ContractManager
             $class = preg_replace('/\\'.DIRECTORY_SEPARATOR.'/', '\\', $contract);
             $class = 'Custom\\Contract\\'.$class;
 
-            if (file_exists($filename)) {
+            if (file_exists($filename) && !class_exists($class)) {
                 require_once($filename);
             }
 
-            if (class_exists($class)) {
+            if (class_exists($class) && !isset($this->contracts[$class::TYPE])) {
                 $this->contracts[$class::TYPE] = new $class();
             }
         }

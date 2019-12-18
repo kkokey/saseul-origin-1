@@ -143,7 +143,8 @@ class Env
             fwrite($f, $msg);
             fclose($f);
 
-            return;
+            Logger::log('See '.$file);
+            exit();
         });
     }
 

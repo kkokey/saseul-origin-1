@@ -46,8 +46,9 @@ class Setup
     public function DropDatabase()
     {
         Logger::log('Drop Database');
-
         $this->db->Command(MongoDbConfig::DB_SASEUL, ['dropDatabase' => 1]);
+        $this->db->Command(MongoDbConfig::DB_CUSTOM, ['dropDatabase' => 1]);
+        $this->db->Command(MongoDbConfig::DB_TEST, ['dropDatabase' => 1]);
     }
 
     public function CreateDatabase()

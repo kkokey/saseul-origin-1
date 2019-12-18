@@ -56,11 +56,11 @@ class RequestManager
             $class = preg_replace('/\\'.DIRECTORY_SEPARATOR.'/', '\\', $request);
             $class = 'Custom\\Request\\'.$class;
 
-            if (file_exists($filename)) {
+            if (file_exists($filename) && !class_exists($class)) {
                 require_once($filename);
             }
 
-            if (class_exists($class)) {
+            if (class_exists($class) && !isset($this->requests[$class::TYPE])) {
                 $this->requests[$class::TYPE] = new $class();
             }
         }

@@ -1,21 +1,22 @@
 <?php
 
-namespace Saseul\Contract;
+namespace Custom\Contract;
 
+use Custom\Status\S2;
 use Saseul\Common\Contract;
 use Saseul\Constant\Decision;
 use Saseul\Core\Key;
 use Saseul\Util\TypeChecker;
 use Saseul\Version;
 
-class Dummy extends Contract
+class C6 extends Contract
 {
-    public const TYPE = 'Dummy';
+    public const TYPE = 'Farming';
     public const T_STRUCTURE = [
         'type' => '',
         'version' => '',
         'from' => '',
-        'timestamp' => 0
+        'timestamp' => 0,
     ];
 
     protected $transaction;
@@ -28,7 +29,7 @@ class Dummy extends Contract
     private $from;
     private $timestamp;
 
-    public function _init(array $transaction, string $thash, string $public_key, string $signature): void
+    public function _init($transaction, $thash, $public_key, $signature): void
     {
         $this->transaction = $transaction;
         $this->thash = $thash;
@@ -38,7 +39,9 @@ class Dummy extends Contract
         $this->type = $this->transaction['type'] ?? '';
         $this->version = $this->transaction['version'] ?? '';
         $this->from = $this->transaction['from'] ?? '';
-        $this->timestamp = (int) $this->transaction['timestamp'] ?? 0;
+        $this->timestamp = $this->transaction['timestamp'] ?? 0;
+
+        $this->timestamp = (int) $this->timestamp;
     }
 
     public function _getValidity(): bool
@@ -48,6 +51,7 @@ class Dummy extends Contract
         }
 
         return Version::isValid($this->version)
+            && is_numeric($this->timestamp)
             && $this->type === self::TYPE
             && Key::isValidAddress($this->from, $this->public_key)
             && Key::isValidSignature($this->thash, $this->public_key, $this->signature);
@@ -56,5 +60,10 @@ class Dummy extends Contract
     public function _makeDecision(): string
     {
         return Decision::ACCEPT;
+    }
+
+    public function _setStatus(): void
+    {
+        S2::GetInstance()->addFarmer($this->from);
     }
 }

@@ -4,7 +4,6 @@ namespace Saseul\Status;
 
 use Saseul\Common\Status;
 use Saseul\Constant\MongoDbConfig;
-use Saseul\Constant\Title;
 use Saseul\System\Database;
 
 class Authority extends Status
@@ -21,8 +20,10 @@ class Authority extends Status
     }
 
     private $db;
-    private $addresses_manager;
-    private $managers;
+    private $addresses = [];
+    private $titles = [];
+    private $authorities = [];
+    private $reset_titles = [];
 
     public function __construct()
     {
@@ -48,6 +49,7 @@ class Authority extends Status
                 'indexes' => [
                     ['key' => ['address' => 1], 'name' => 'address_asc'],
                     ['key' => ['title' => 1], 'name' => 'title_asc'],
+                    ['key' => ['address' => 1, 'title' => 1], 'name' => 'address_title_asc', 'unique' => 1],
                 ]
             ]);
         }
@@ -55,44 +57,59 @@ class Authority extends Status
 
     public function _reset(): void
     {
-        $this->addresses_manager = [];
-        $this->managers = [];
+        $this->addresses = [];
+        $this->titles = [];
+        $this->authorities = [];
+        $this->reset_titles = [];
     }
 
     public function _load(): void
     {
-        $this->addresses_manager = array_values(array_unique($this->addresses_manager));
+        $this->addresses = array_values(array_unique($this->addresses));
+        $this->titles = array_values(array_unique($this->titles));
 
-        if (count($this->addresses_manager) === 0) {
+        if (count($this->addresses) === 0) {
             return;
         }
 
-        $filter = ['address' => ['$in' => $this->addresses_manager], 'title' => Title::NETWORK_MANAGER];
+        $filter = [
+            'address' => ['$in' => $this->addresses],
+            'title' => ['$in' => $this->titles],
+        ];
         $rs = $this->db->Query(MongoDbConfig::NAMESPACE_AUTHORITY, $filter);
 
         foreach ($rs as $item) {
-            if (isset($item->_id)) {
-                unset($item->_id);
-            }
-
-            $this->managers[$item->address] = true;
+            $this->authorities[$item->address][$item->title] = true;
         }
     }
 
     public function _save(): void
     {
-        foreach ($this->managers as $k => $v)
+        if (count($this->reset_titles) > 0)
         {
-            if ($v === true) {
-                $filter = ['address' => $k, 'title' => Title::NETWORK_MANAGER];
-                $row = [
-                    '$set' => ['title' => Title::NETWORK_MANAGER],
-                ];
-                $opt = ['upsert' => true];
-                $this->db->bulk->update($filter, $row, $opt);
-            } else {
-                $filter = ['address' => $k, 'title' => Title::NETWORK_MANAGER];
-                $this->db->bulk->delete($filter);
+            $filter = [
+                'title' => ['$in' => $this->reset_titles]
+            ];
+            $this->db->bulk->delete($filter);
+            $this->db->BulkWrite(MongoDbConfig::NAMESPACE_AUTHORITY);
+        }
+
+        foreach ($this->authorities as $address => $item) {
+            foreach ($item as $title => $bool) {
+                if ($bool === true) {
+                    $filter = ['address' => $address, 'title' => $title];
+                    $row = [
+                        '$set' => [
+                            'address' => $address,
+                            'title' => $title,
+                        ],
+                    ];
+                    $opt = ['upsert' => true];
+                    $this->db->bulk->update($filter, $row, $opt);
+                } else {
+                    $filter = ['address' => $address, 'title' => $title];
+                    $this->db->bulk->delete($filter);
+                }
             }
         }
 
@@ -103,19 +120,33 @@ class Authority extends Status
         $this->_reset();
     }
 
-    public function load($address) {
-        $this->addresses_manager[] = $address;
+    public function loadAuthority(string $address, string $title): void
+    {
+        $this->addresses[] = $address;
+        $this->titles[] = $title;
     }
 
-    public function get($address)
+    public function getAuthority(string $address, string $title): bool
     {
-        $bool = $this->managers[$address] ?? false;
+        if (isset($this->authorities[$address][$title])) {
+            return $this->authorities[$address][$title];
+        }
 
-        return $bool;
+        return false;
     }
 
-    public function setManager($address, $bool = true)
+    public function resetAuthority(string $title): void
     {
-        $this->managers[$address] = $bool;
+        $this->reset_titles[] = $title;
+    }
+
+    public function setAuthority(string $address, string $title): void
+    {
+        $this->authorities[$address][$title] = true;
+    }
+
+    public function removeAuthority(string $address, string $title): void
+    {
+        $this->authorities[$address][$title] = false;
     }
 }

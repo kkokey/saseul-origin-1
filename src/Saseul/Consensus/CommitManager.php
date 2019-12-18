@@ -10,6 +10,7 @@ use Saseul\Constant\MongoDbConfig;
 use Saseul\Constant\Structure;
 use Saseul\Core\Key;
 use Saseul\Core\Property;
+use Saseul\Core\Random;
 use Saseul\Data\Chunk;
 use Saseul\Data\Tracker;
 use Saseul\System\Database;
@@ -159,9 +160,13 @@ class CommitManager
             }
         }
 
+        Random::setSeed($expect_block['blockhash']);
+
         $this->status_manager->preprocess();
         $this->status_manager->save();
         $this->status_manager->postprocess();
+
+        Random::reset();
 
         $this->commitTransaction($transactions, $expect_block);
         $this->commitBlock($expect_block);
