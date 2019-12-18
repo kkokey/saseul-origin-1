@@ -37,7 +37,6 @@ class Block extends Status
     {
         $command = [
             'count' => MongoDbConfig::COLLECTION_BLOCK,
-            'query' => [],
         ];
 
         $rs = $this->db->Command(MongoDbConfig::DB_SASEUL, $command);

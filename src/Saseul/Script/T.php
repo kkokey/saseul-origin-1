@@ -23,6 +23,10 @@ class T extends Script
 
         Logger::log($a);
 
+        $a = 'S01';
+        $b = 'S011';
 
+        Logger::log($a > $b);
+        Logger::log($b > $a);
     }
 }

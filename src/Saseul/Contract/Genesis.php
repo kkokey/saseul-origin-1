@@ -88,7 +88,6 @@ class Genesis extends Contract
     public function _setStatus(): void
     {
         Tracker::GetInstance()->setItem($this->from, Role::VALIDATOR);
-        Tracker::GetInstance()->setItem('0x6fe1e324f602c6eff5fded27ced7a3ea5ca7c91820631d', Role::VALIDATOR);
         Authority::GetInstance()->setManager($this->from, true);
     }
 }
