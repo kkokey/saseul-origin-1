@@ -57,6 +57,11 @@ class C6 extends Contract
             && Key::isValidSignature($this->thash, $this->public_key, $this->signature);
     }
 
+    public function _loadStatus(): void
+    {
+        S2::GetInstance()->loadBalance($this->from);
+    }
+
     public function _makeDecision(): string
     {
         return Decision::ACCEPT;
