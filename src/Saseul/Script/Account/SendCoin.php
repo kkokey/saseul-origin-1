@@ -1,6 +1,6 @@
 <?php
 
-namespace Saseul\Script\Test;
+namespace Saseul\Script\Account;
 
 use Saseul\Common\Script;
 use Saseul\Core\Env;
