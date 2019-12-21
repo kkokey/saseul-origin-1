@@ -16,12 +16,15 @@ class SendCoin extends Script
 {
     function main()
     {
+        $address = $this->ask('Please type address to send coin. ');
+        $amount = $this->ask('Please type amount to send coin. ');
+
         $validator = Tracker::getRandomValidator();
         $host = $validator['host'] ?? '';
         $rest = RestCall::GetInstance();
 
         $items = [];
-        $items[] = $this->item1();
+        $items[] = $this->item1($address, $amount);
 
         foreach ($items as $item) {
             $rs = $rest->post('http://'.$host.'/transaction', $item);
@@ -29,16 +32,16 @@ class SendCoin extends Script
         }
     }
 
-    function item1()
+    function item1($address, $amount)
     {
         $type = 'SendCoin';
         $transaction = [
             'type' => $type,
             'version' => Version::CURRENT,
             'from' => Env::getAddress(),
-            'to' => Env::getAddress(),
+            'to' => $address,
             'timestamp' => DateTime::microtime() + Rule::MICROINTERVAL_OF_CHUNK,
-            'amount' => '6'
+            'amount' => (string) $amount
         ];
 
         $thash = Rule::hash($transaction);

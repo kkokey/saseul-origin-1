@@ -68,7 +68,7 @@ class Api
      *
      * @return float|int|string
      */
-    protected function getParam(array $request, string $key, array $options = [])
+    protected function getParam($request, string $key, array $options = [])
     {
         if (!isset($request[$key]) && !isset($options['default'])) {
             $this->Error("There is no parameter: {$key}");

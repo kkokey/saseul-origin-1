@@ -69,6 +69,7 @@ class C5 extends Contract
     public function _loadStatus(): void
     {
         S2::GetInstance()->loadBalance($this->from);
+        S2::GetInstance()->loadBalance($this->to);
     }
 
     public function _makeDecision(): string
