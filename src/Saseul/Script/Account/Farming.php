@@ -52,13 +52,6 @@ class Farming extends Script
             'signature' => $signature
         ];
 
-        $str = "?transaction=".json_encode($transaction);
-        $str.= "&thash=".$thash;
-        $str.= "&public_key=".$public_key;
-        $str.= "&signature=".$signature;
-        Logger::log($str);
-        exit();
-
         return $item;
     }
 }
